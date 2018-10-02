@@ -1,16 +1,16 @@
 <template lang="html">
   <div>
     <timer
-      v-if="state === 'nameAvailableAuctionStarted'"
+      v-if="$route.fullPath.includes('bid')"
       :date-number="auctionDateEnd"
       date-type="reveal" />
     <timer
-      v-if="state === 'nameAvailableAuctionStarted'"
+      v-if="$route.fullPath.includes('bid') || $route.fullPath.includes('reveal')"
       :date-number="auctionDateEnd"
       date-type="auction" />
     <div class="name-available-container">
       <div
-        v-if="state==='nameAvailableAuctionNotStarted'"
+        v-if="$route.fullPath.includes('auction')"
         class="content-header">
         <div>
           <h3> {{ domainName }}.eth </h3>
@@ -18,11 +18,19 @@
         </div>
       </div>
       <div
-        v-if="state==='nameAvailableAuctionStarted'"
+        v-if="$route.fullPath.includes('bid')"
         class="auction-started">
         <div>
           <h3> An auction has been started for {{ domainName }}.eth </h3>
         </div>
+      </div>
+      <div
+        v-if="$route.fullPath.includes('reveal')"
+        class="auction-started">
+        <h3>
+          Reveal your bid for {{ domainName }}.eth now. <br>
+          {{ highestBidder }} ETH (Current highest bid)
+        </h3>
       </div>
       <form class="form">
         <div class="input-container">
@@ -57,17 +65,12 @@
             class="cancel"
             @click="cancel">Back</button>
           <button
-            v-if="state === 'nameAvailableAuctionNotStarted'"
             type="submit"
             name="submit"
             class="submit"
-            @click.prevent="startAuctionAndBid">Start Auction</button>
-          <button
-            v-if="state === 'nameAvailableAuctionStarted'"
-            type="submit"
-            name="submit"
-            class="submit"
-            @click.prevent="() => {console.log('hello there!')}">Bid</button>
+            @click.prevent="$route.fullPath.includes('auction') ? startAuctionAndBid(): $route.fullPath.includes('bid') ? sendBid() : revealBid()">
+            {{ $route.fullPath.includes('auction') ? 'Start Auction' : $route.fullPath.includes('bid') ? 'Bid' : 'Reveal Bid' }}
+          </button>
         </div>
       </form>
     </div>
@@ -95,7 +98,7 @@ export default {
     },
     secretPhrase: {
       type: String,
-      default: ''
+      default: 'random strings generated'
     },
     cancel: {
       type: Function,
@@ -105,11 +108,19 @@ export default {
       type: Function,
       default: function() {}
     },
+    sendBid: {
+      type: Function,
+      default: function() {}
+    },
+    revealBid: {
+      type: Function,
+      default: function() {}
+    },
     auctionDateEnd: {
       type: Number,
       default: 0
     },
-    state: {
+    highestBidder: {
       type: String,
       default: ''
     }

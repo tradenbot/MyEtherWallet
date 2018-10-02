@@ -1,5 +1,17 @@
 @import '../../RegisterDomain';
 
+.confirm-ens-container {
+  @extend %template-container;
+}
+
+.confirmation-warning {
+  background-color: $light-red-1;
+  border: 1px solid $red-2;
+  border-radius: 4px;
+  color: $red-6;
+  padding: 15px 25px;
+}
+
 .submit-button-container {
   padding: 60px 0;
   text-align: center;
@@ -79,7 +91,8 @@
   align-items: center;
   display: flex;
   justify-content: space-around;
-  padding: 30px 55px;
+  padding: 30px 10px;
+  width: 100%;
 
   button {
     @extend %button;
@@ -92,5 +105,13 @@
 
   .submit-button {
     background-color: $mew-green;
+  }
+}
+
+.ens-name {
+  padding: 25px 10px 1px;
+  h2 {
+    color: $dark-blue-2;
+    font-size: 24px;
   }
 }

@@ -1,59 +1,35 @@
 <template>
   <div class="register-domain-container">
     <back-button/>
-    <ens-bid-container
-      v-if="uiState === 'nameAvailableAuctionNotStarted' || uiState === 'nameAvailableAuctionStarted'"
+    <router-view
+      :check-domain="checkDomain"
       :cancel="cancel"
       :bid-amount="bidAmount"
       :bid-mask="bidMask"
       :secret-phrase="secretPhrase"
       :start-auction-and-bid="startAuctionAndBid"
       :domain-name="domainName"
-      :state="uiState"
       :auction-date-end="auctionDateEnd"
-      @updateSecretPhrase="updateSecretPhrase"
-      @updateBidAmount="updateBidAmount"
-      @updateBidMask="updateBidMask"
-    />
-    <confirm-container
-      v-if="uiState === 'confirmationPage'"
-      :ens="ens"
-      :from-page="fromPage"
       :back="back"
-    />
-    <initial-state-container
-      v-if="uiState === 'initial'"
       :domain-buy-button-click="domainBuyButtonClick"
-      :check-domain="checkDomain"
-      :domain-name="domainName"
       :loading="loading"
-      @domainNameChange="updateDomainName"
-    />
-    <name-forbidden-container
-      v-if="uiState === 'nameIsForbidden'"
-      :cancel="cancel"
-      domain-name="hellothere!"
-    />
-    <already-owned-container
-      v-if="uiState === 'nameOwned'"
       :name-hash="nameHash"
       :label-hash="labelHash"
       :owner="owner"
       :resolver-address="resolverAddress"
       :deed-owner="deedOwner"
-      :domain-name="domainName"
-      :cancel="cancel"
+      :highest-bidder="highestBidder"
+      :raw="raw"
+      @updateSecretPhrase="updateSecretPhrase"
+      @updateBidAmount="updateBidAmount"
+      @updateBidMask="updateBidMask"
+      @domainNameChange="updateDomainName"
     />
   </div>
 </template>
 
 <script>
 import BackButton from '@/layouts/InterfaceLayout/components/BackButton';
-import ConfirmContainer from './containers/ConfirmContainer';
-import EnsBidContainer from './containers/EnsBidContainer';
-import NameForbiddenContainer from './containers/NameForbiddenContainer';
-import InitialStateContainer from './containers/InitialStateContainer';
-import AlreadyOwnedContainer from './containers/AlreadyOwnedContainer';
 import RegistrarAbi from '@/helpers/registrarAbi';
 import bip39 from 'bip39';
 // eslint-disable-next-line
@@ -62,18 +38,12 @@ const unit = require('ethjs-unit');
 const nameHashPckg = require('eth-ens-namehash');
 export default {
   components: {
-    'back-button': BackButton,
-    'confirm-container': ConfirmContainer,
-    'ens-bid-container': EnsBidContainer,
-    'initial-state-container': InitialStateContainer,
-    'name-forbidden-container': NameForbiddenContainer,
-    'already-owned-container': AlreadyOwnedContainer
+    'back-button': BackButton
   },
   data() {
     return {
       domainName: '',
       loading: false,
-      uiState: 'initial',
       bidAmount: 0.01,
       bidMask: 0.02,
       nameHash: '',
@@ -86,17 +56,23 @@ export default {
       auctionDateEnd: 0,
       auctionRegistrarContract: function() {},
       raw: {},
-      fromPage: 'initial'
+      highestBidder: ''
     };
   },
-  async mounted() {
-    this.registrarAddress = await this.getRegistrarAddress();
-    this.auctionRegistrarContract = new this.$store.state.web3.eth.Contract(
-      RegistrarAbi,
-      this.registrarAddress
-    );
+  mounted() {
+    this.setup();
   },
   methods: {
+    async setup() {
+      console.log('Setting up');
+      this.registrarAddress = await this.getRegistrarAddress();
+      this.auctionRegistrarContract = new this.$store.state.web3.eth.Contract(
+        RegistrarAbi,
+        this.registrarAddress
+      );
+
+      console.log('Registrar setup!', this.auctionRegistrarContract);
+    },
     async getRegistrarAddress() {
       const registrarAddress = await this.$store.state.ens.owner('eth');
       return registrarAddress;
@@ -117,36 +93,43 @@ export default {
       }
     },
     processResult(res) {
+      this.auctionDateEnd = res[2] * 1000;
+      this.highestBidder = this.$store.state.web3.utils
+        .fromWei(res[4], 'ether')
+        .toString();
       switch (res[0]) {
         case '0':
           this.generateKeyPhrase();
-          this.uiState = 'nameAvailableAuctionNotStarted';
+          this.$router.push({
+            path: 'register-domain/auction'
+          });
           this.loading = false;
           break;
         case '1':
           this.generateKeyPhrase();
           this.loading = false;
-          this.auctionDateEnd = res[2] * 1000;
-          this.uiState = 'nameAvailableAuctionStarted';
+          this.$router.push({ path: 'register-domain/bid' });
           break;
         case '2':
           this.getMoreInfo(res[1]);
           break;
         case '3':
           this.loading = false;
-          this.uiState = 'nameIsForbidden';
+          this.$router.push({
+            path: 'register-domain/forbidden'
+          });
           break;
         case '4':
           this.loading = false;
-          this.uiState = 'nameAvailableAuctionStartedBidUnavailable';
+          this.$router.push({ path: 'register-domain/reveal' });
           break;
       }
     },
     back() {
-      this.uiState = this.from;
+      this.$router.go(-1);
     },
     cancel() {
-      this.uiState = 'initial';
+      this.back();
       this.clearInputs();
     },
     updateDomainName(value) {
@@ -174,10 +157,10 @@ export default {
       this.deedOwner = deedOwner;
       this.owner = owner;
       this.resolverAddress = resolverAddress;
-      this.uiState = 'nameOwned';
+      this.$router.push({ path: 'register-domain/owned' });
       this.loading = false;
     },
-    async startAuctionAndBid() {
+    async createTransaction(type) {
       const address = this.$store.state.wallet.getAddressString();
       const utils = this.$store.state.web3.utils;
       const domainName = utils.sha3(this.domainName);
@@ -190,16 +173,35 @@ export default {
         )
         .call();
 
-      const auctionBidObj = this.auctionRegistrarContract.methods.startAuctionsAndBid(
-        [domainName],
-        bidHash
-      );
+      let contractReference;
+      if (type === 'start') {
+        contractReference = this.auctionRegistrarContract.methods.startAuctionsAndBid(
+          [domainName],
+          bidHash
+        );
+      } else if (type === 'bid') {
+        contractReference = await this.auctionRegistrarContract.methods.newBid(
+          bidHash,
+          {
+            from: address,
+            to: this.registrarAddress,
+            value: utils.toWei(this.bidMask.toString(), 'ether')
+          }
+        );
+      } else if (type === 'reveal') {
+        contractReference = await this.auctionRegistrarContract.methods.unsealBid(
+          domainName,
+          address,
+          utils.toWei(this.bidAmount.toString(), 'ether'),
+          utils.sha3(this.secretPhrase)
+        );
+      }
 
       const nonce = await this.$store.state.web3.eth.getTransactionCount(
         this.$store.state.wallet.getAddressString()
       );
 
-      const gas = await auctionBidObj.estimateGas({
+      const gas = await contractReference.estimateGas({
         from: address,
         to: this.registrarAddress,
         value: utils.toWei(this.bidMask.toString(), 'ether')
@@ -215,7 +217,7 @@ export default {
         gasPrice: Number(unit.toWei(this.$store.state.gasPrice, 'gwei')),
         value: Number(unit.toWei(this.bidMask, 'ether')),
         to: this.registrarAddress,
-        data: auctionBidObj.encodeABI(),
+        data: contractReference.encodeABI(),
         chainId: this.$store.state.network.type.chainID,
         name: this.domainName,
         nameSHA3: utils.sha3(this.domainName),
@@ -232,12 +234,19 @@ export default {
       }
 
       this.raw = raw;
-      this.uiState = 'confirmationPage';
-      this.fromPage = 'nameAvailableAuctionNotStarted';
+      this.$router.push({ path: 'confirm' });
+    },
+    startAuctionAndBid() {
+      this.createTransaction('start');
+    },
+    sendBid() {
+      this.createTransaction('bid');
+    },
+    revealBid() {
+      this.createTransaction('reveal');
     },
     clearInputs() {
       this.loading = false;
-      this.uiState = 'initial';
       this.bidAmount = 0.01;
       this.bidMask = 0.02;
       this.nameHash = '';

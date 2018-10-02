@@ -204,5 +204,5 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import 'InitialStateContainer.scss';
+@import 'InitialENSStateContainer.scss';
 </style>

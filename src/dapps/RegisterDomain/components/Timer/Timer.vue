@@ -11,7 +11,6 @@
 </template>
 <script>
 import { Misc } from '@/helpers';
-import { clearInterval } from 'timers';
 export default {
   props: {
     dateType: {

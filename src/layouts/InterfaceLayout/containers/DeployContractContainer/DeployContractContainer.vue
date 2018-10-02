@@ -248,7 +248,29 @@ export default {
         // estimateGas was failing if chainId in present
         this.raw.chainId = this.$store.state.network.type.chainID || 1;
 
-        await web3.eth.sendTransaction(this.raw);
+        await web3.eth
+          .sendTransaction(this.raw)
+          .once('transactionHash', hash => {
+            this.$store.dispatch('addNotification', [
+              this.raw.from,
+              hash,
+              'Transaction Hash'
+            ]);
+          })
+          .on('receipt', res => {
+            this.$store.dispatch('addNotification', [
+              this.raw.from,
+              res,
+              'Transaction Receipt'
+            ]);
+          })
+          .on('error', err => {
+            this.$store.dispatch('addNotification', [
+              this.raw.from,
+              err,
+              'Transaction Error'
+            ]);
+          });
       } catch (e) {
         // eslint-disable-next-line
         console.error(e); // todo replace with proper error

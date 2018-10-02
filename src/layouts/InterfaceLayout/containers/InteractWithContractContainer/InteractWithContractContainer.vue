@@ -434,7 +434,29 @@ export default {
           data: this.data
         };
 
-        await web3.eth.sendTransaction(this.raw);
+        await web3.eth
+          .sendTransaction(this.raw)
+          .once('transactionHash', hash => {
+            this.$store.dispatch('addNotification', [
+              this.raw.from,
+              hash,
+              'Transaction Hash'
+            ]);
+          })
+          .on('receipt', res => {
+            this.$store.dispatch('addNotification', [
+              this.raw.from,
+              res,
+              'Transaction Receipt'
+            ]);
+          })
+          .on('error', err => {
+            this.$store.dispatch('addNotification', [
+              this.raw.from,
+              err,
+              'Transaction Error'
+            ]);
+          });
       }
     },
     checkInputsFilled() {

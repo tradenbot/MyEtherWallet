@@ -83,6 +83,7 @@ const setWeb3Instance = function({ dispatch, commit, state }, provider) {
         hostUrl.pathname
       }`
     );
+
     commit(
       'SET_WEB3_INSTANCE',
       override(web3Instance, state.wallet, this._vm.$eventHub, dispatch)

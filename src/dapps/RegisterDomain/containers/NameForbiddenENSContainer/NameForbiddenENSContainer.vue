@@ -31,5 +31,5 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import 'NameForbiddenContainer.scss';
+@import 'NameForbiddenENSContainer.scss';
 </style>
