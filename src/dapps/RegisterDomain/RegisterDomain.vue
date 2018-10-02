@@ -2,6 +2,7 @@
   <div class="register-domain-container">
     <back-button/>
     <router-view
+      :contract-initiate="contractInitiated"
       :check-domain="checkDomain"
       :cancel="cancel"
       :bid-amount="bidAmount"
@@ -56,7 +57,8 @@ export default {
       auctionDateEnd: 0,
       auctionRegistrarContract: function() {},
       raw: {},
-      highestBidder: ''
+      highestBidder: '',
+      contractInitiated: false
     };
   },
   mounted() {
@@ -64,14 +66,13 @@ export default {
   },
   methods: {
     async setup() {
-      console.log('Setting up');
+      this.contractInitiated = false;
       this.registrarAddress = await this.getRegistrarAddress();
       this.auctionRegistrarContract = new this.$store.state.web3.eth.Contract(
         RegistrarAbi,
         this.registrarAddress
       );
-
-      console.log('Registrar setup!', this.auctionRegistrarContract);
+      this.contractInitiated = true;
     },
     async getRegistrarAddress() {
       const registrarAddress = await this.$store.state.ens.owner('eth');

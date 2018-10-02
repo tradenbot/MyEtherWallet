@@ -21,7 +21,7 @@
         class="erroredMsg"> Domain name is less than 7 characters. </p>
       <div class="submit-button-container">
         <button
-          :class="[localDomainName.length < 7 ? 'disabled' : '','submit-button large-round-button-green-filled clickable']"
+          :class="[localDomainName.length < 7 ? 'disabled' : '', 'submit-button large-round-button-green-filled clickable']"
           @click.prevent="checkDomain">
           <span v-show="!loading"> {{ $t('interface.checkDomain') }} </span>
           <i
@@ -30,6 +30,9 @@
         </button>
 
       </div>
+      <p 
+        v-show="!!contractInitiated" 
+        class="contract-loading-warning">Contract is not ready yet, transaction might fail.</p>
     </form>
 
     <div class="flex-container">
@@ -170,6 +173,10 @@ export default {
       default: function() {}
     },
     loading: {
+      type: Boolean,
+      default: false
+    },
+    contractInitiated: {
       type: Boolean,
       default: false
     },

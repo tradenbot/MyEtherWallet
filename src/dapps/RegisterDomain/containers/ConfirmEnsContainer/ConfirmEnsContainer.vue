@@ -92,9 +92,16 @@ export default {
     sendTx() {
       const web3 = this.$store.state.web3;
       const dispatch = this.$store.dispatch;
-      const raw = this.raw;
+      const raw = {
+        data: this.raw['data'],
+        from: this.raw['from'],
+        to: this.raw['to'],
+        value: this.raw['value'],
+        gasPrice: this.raw['gasPrice'],
+        gas: this.raw['gas'],
+        nonce: this.raw['nonce']
+      };
 
-      console.log(raw);
       web3.eth
         .sendTransaction(raw)
         .once('transactionHash', hash => {
