@@ -54,11 +54,7 @@
       border-radius: 5px;
       cursor: pointer;
       padding: 20px;
-      width: 150px;
-    }
-
-    .cancel {
-      border: 1px solid $black;
+      width: 260px;
     }
 
     .submit {
@@ -66,5 +62,17 @@
       border: 1px solid $mew-green;
       color: $white;
     }
+  }
+}
+
+.secret-phrase-label {
+  align-items: center;
+  display: flex;
+  justify-content: space-between;
+
+  .random {
+    color: $mew-green;
+    cursor: pointer;
+    font-weight: normal;
   }
 }

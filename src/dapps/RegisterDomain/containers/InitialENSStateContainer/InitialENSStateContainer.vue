@@ -30,8 +30,8 @@
         </button>
 
       </div>
-      <p 
-        v-show="!!contractInitiated" 
+      <p
+        v-show="contractInitiated === false"
         class="contract-loading-warning">Contract is not ready yet, transaction might fail.</p>
     </form>
 
@@ -164,10 +164,6 @@ export default {
     'interface-bottom-text': InterfaceBottomText
   },
   props: {
-    domainBuyButtonClick: {
-      type: Function,
-      default: function() {}
-    },
     checkDomain: {
       type: Function,
       default: function() {}

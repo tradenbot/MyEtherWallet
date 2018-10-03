@@ -84,7 +84,7 @@
   color: $white;
   cursor: pointer;
   height: 64px;
-  width: 227px;
+  width: 260px;
 }
 
 .button-container {
@@ -96,11 +96,6 @@
 
   button {
     @extend %button;
-  }
-
-  .cancel-button {
-    border: 1px solid $mew-green;
-    color: $mew-green;
   }
 
   .submit-button {

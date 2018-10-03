@@ -43,11 +43,6 @@
     <div class="button-container">
       <button
         type="button"
-        class="cancel-button"
-        name="button"
-        @click="back">Back</button>
-      <button
-        type="button"
         class="submit-button"
         name="button"
         @click="sendTx">{{ $t('common.confirmAndSave') }}</button>
@@ -63,12 +58,6 @@ export default {
   props: {
     raw: {
       type: Object,
-      default: function() {
-        return {};
-      }
-    },
-    back: {
-      type: Function,
       default: function() {
         return {};
       }

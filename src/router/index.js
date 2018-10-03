@@ -21,179 +21,122 @@ import SwapContainer from '@/layouts/InterfaceLayout/containers/SwapContainer';
 import SignMessageContainer from '@/layouts/InterfaceLayout/containers/SignMessageContainer';
 import VerifyMessageContainer from '@/layouts/InterfaceLayout/containers/VerifyMessageContainer';
 
-import RegisterDomain from '@/dapps/RegisterDomain';
-import ConfirmEnsContainer from '@/dapps/RegisterDomain/containers/ConfirmEnsContainer';
-import EnsBidContainer from '@/dapps/RegisterDomain/containers/EnsBidContainer';
-import InitialENSStateContainer from '@/dapps/RegisterDomain/containers/InitialENSStateContainer';
-import NameForbiddenENSContainer from '@/dapps/RegisterDomain/containers/NameForbiddenENSContainer';
-import AlreadyOwnedENSContainer from '@/dapps/RegisterDomain/containers/AlreadyOwnedENSContainer';
-
-import DomainSaleContainer from '@/dapps/DomainSaleContainer';
-
 import { router as routerConfig } from '@/configs/build';
+import dapps from '@/dapps/routes';
 
 Vue.use(Router);
 
+const router = [
+  {
+    path: '/',
+    name: 'Home',
+    component: HomeLayout
+  },
+  {
+    path: '/create-wallet',
+    name: 'CreateWalletLayout',
+    component: CreateWalletLayout
+  },
+  {
+    path: '/team',
+    name: 'TeamLayout',
+    component: TeamLayout
+  },
+  {
+    path: '/privacy-policy',
+    name: 'PrivacyPolicyLayout',
+    component: PrivacyPolicyLayout
+  },
+  {
+    path: '/terms-and-conditions',
+    name: 'TermsAndConditionsLayout',
+    component: TermsAndConditionsLayout
+  },
+  {
+    path: '/access-my-wallet',
+    name: 'AccessWalletLayout',
+    component: AccessWalletLayout
+  },
+  {
+    path: '/help-center',
+    name: 'HelpCenterLayout',
+    component: HelpCenterLayout
+  },
+  {
+    path: '/convert-units',
+    name: 'ConvertUnits',
+    component: ConvertUnits
+  },
+  {
+    path: '/getting-started',
+    name: 'GettingStarted',
+    component: GettingStarted
+  },
+  {
+    path: '*',
+    name: '404',
+    component: NotFoundLayout
+  },
+  {
+    path: '/interface',
+    component: InterfaceLayout,
+    children: [
+      {
+        path: '',
+        name: 'Send Transaction',
+        component: SendCurrencyContainer
+      },
+      {
+        path: 'dapps',
+        name: 'Dapps',
+        component: DappsContainer
+      },
+      {
+        path: 'deploy-contract',
+        name: 'Deploy Contract',
+        component: DeployContractContainer
+      },
+      {
+        path: 'interact-with-contract',
+        name: 'Interact With Contract',
+        component: InteractWithContractContainer
+      },
+      {
+        path: 'send-transaction',
+        name: 'Send Tx',
+        component: SendCurrencyContainer
+      },
+      {
+        path: 'send-offline-transaction',
+        name: 'Send Offline',
+        component: SendOfflineContainer
+      },
+      {
+        path: 'swap',
+        name: 'Swap',
+        component: SwapContainer
+      },
+      {
+        path: 'sign-message',
+        name: 'Sign Message',
+        component: SignMessageContainer
+      },
+      {
+        path: 'verify-message',
+        name: 'Verify Message',
+        component: VerifyMessageContainer
+      }
+    ]
+  }
+];
+
+Object.keys(dapps).forEach(dapp => {
+  router[router.length - 1].children.push(dapps[dapp]);
+});
+
 export default new Router({
   mode: routerConfig.mode,
-  routes: [
-    {
-      path: '/',
-      name: 'Home',
-      component: HomeLayout
-    },
-    {
-      path: '/create-wallet',
-      name: 'CreateWalletLayout',
-      component: CreateWalletLayout
-    },
-    {
-      path: '/team',
-      name: 'TeamLayout',
-      component: TeamLayout
-    },
-    {
-      path: '/privacy-policy',
-      name: 'PrivacyPolicyLayout',
-      component: PrivacyPolicyLayout
-    },
-    {
-      path: '/terms-and-conditions',
-      name: 'TermsAndConditionsLayout',
-      component: TermsAndConditionsLayout
-    },
-    {
-      path: '/access-my-wallet',
-      name: 'AccessWalletLayout',
-      component: AccessWalletLayout
-    },
-    {
-      path: '/interface',
-      component: InterfaceLayout,
-      children: [
-        {
-          path: '',
-          name: 'Send Transaction',
-          component: SendCurrencyContainer
-        },
-        {
-          path: 'dapps',
-          name: 'Dapps',
-          component: DappsContainer
-        },
-        {
-          path: 'dapps/register-domain',
-          component: RegisterDomain,
-          props: true,
-          children: [
-            {
-              path: '',
-              name: 'ENS initial state',
-              component: InitialENSStateContainer,
-              props: true
-            },
-            {
-              path: 'auction',
-              name: 'Bid on ENS and start auction',
-              component: EnsBidContainer,
-              props: true
-            },
-            {
-              path: 'bid',
-              name: 'Bid on ENS',
-              component: EnsBidContainer,
-              props: true
-            },
-            {
-              path: 'owned',
-              name: 'ENS owned',
-              component: AlreadyOwnedENSContainer,
-              props: true
-            },
-            {
-              path: 'confirm',
-              name: 'Confirm ENS Bid',
-              component: ConfirmEnsContainer,
-              props: true
-            },
-            {
-              path: 'reveal',
-              name: 'Reveal ENS bid',
-              component: EnsBidContainer,
-              props: true
-            },
-            {
-              path: 'forbidden',
-              name: 'ENS forbidden',
-              component: NameForbiddenENSContainer,
-              props: true
-            }
-          ]
-        },
-        {
-          path: 'dapps/domain-sale',
-          name: 'Domain Sale',
-          component: DomainSaleContainer,
-          props: true
-        },
-        {
-          path: 'deploy-contract',
-          name: 'Deploy Contract',
-          component: DeployContractContainer
-        },
-        {
-          path: 'interact-with-contract',
-          name: 'Interact With Contract',
-          component: InteractWithContractContainer
-        },
-        {
-          path: 'send-transaction',
-          name: 'Send Tx',
-          component: SendCurrencyContainer
-        },
-        {
-          path: 'send-offline-transaction',
-          name: 'Send Offline',
-          component: SendOfflineContainer
-        },
-        {
-          path: 'swap',
-          name: 'Swap',
-          component: SwapContainer
-        },
-        {
-          path: 'sign-message',
-          name: 'Sign Message',
-          component: SignMessageContainer
-        },
-        {
-          path: 'verify-message',
-          name: 'Verify Message',
-          component: VerifyMessageContainer
-        }
-      ]
-    },
-    {
-      path: '/help-center',
-      name: 'HelpCenterLayout',
-      component: HelpCenterLayout
-    },
-    {
-      path: '/convert-units',
-      name: 'ConvertUnits',
-      component: ConvertUnits
-    },
-    {
-      path: '/getting-started',
-      name: 'GettingStarted',
-      component: GettingStarted
-    },
-    {
-      path: '*',
-      name: '404',
-      component: NotFoundLayout
-    }
-  ],
+  routes: router,
   scrollBehavior(to) {
     if (to.hash) {
       return {

@@ -2,17 +2,14 @@
   <div class="register-domain-container">
     <back-button/>
     <router-view
-      :contract-initiate="contractInitiated"
+      :contract-initiated="contractInitiated"
       :check-domain="checkDomain"
-      :cancel="cancel"
       :bid-amount="bidAmount"
       :bid-mask="bidMask"
       :secret-phrase="secretPhrase"
       :start-auction-and-bid="startAuctionAndBid"
       :domain-name="domainName"
       :auction-date-end="auctionDateEnd"
-      :back="back"
-      :domain-buy-button-click="domainBuyButtonClick"
       :loading="loading"
       :name-hash="nameHash"
       :label-hash="labelHash"
@@ -21,6 +18,7 @@
       :deed-owner="deedOwner"
       :highest-bidder="highestBidder"
       :raw="raw"
+      :generate-key-phrase="generateKeyPhrase"
       @updateSecretPhrase="updateSecretPhrase"
       @updateBidAmount="updateBidAmount"
       @updateBidMask="updateBidMask"
@@ -125,13 +123,6 @@ export default {
           this.$router.push({ path: 'register-domain/reveal' });
           break;
       }
-    },
-    back() {
-      this.$router.go(-1);
-    },
-    cancel() {
-      this.back();
-      this.clearInputs();
     },
     updateDomainName(value) {
       this.domainName = value;
@@ -246,19 +237,6 @@ export default {
     revealBid() {
       this.createTransaction('reveal');
     },
-    clearInputs() {
-      this.loading = false;
-      this.bidAmount = 0.01;
-      this.bidMask = 0.02;
-      this.nameHash = '';
-      this.labelHash = '';
-      this.owner = '';
-      this.resolverAddress = '';
-      this.deedOwner = '';
-      this.secretPhrase = '';
-      this.domainName = '';
-    },
-    domainBuyButtonClick() {},
     updateSecretPhrase(e) {
       this.secretPhrase = e;
     },

@@ -3,7 +3,7 @@
     <span class="deadline">{{ dateToText() }}</span>
     <span class="actual-timer">
       <img
-        src=""
+        src="@/assets/images/icons/hourglass.svg"
         alt="">
       <b>{{ time }}</b>
     </span>
